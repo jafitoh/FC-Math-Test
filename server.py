@@ -56,7 +56,7 @@ HTML_TEMPLATE = """
 </head>
 
 <body>
-    <h2>Poop: NOCCCD Sections ({{ count }} rows)</h2>
+    <h2>FC MATH/STAT Sections, Fall 26 ({{ count }} rows)</h2>
 
     <div class="table-container">
         <table>
@@ -217,14 +217,8 @@ def sections():
 
             m_row += 1
 
-#    # flatten keys dynamically (spreadsheet-style)
-#    rows = []
-#    for s in data:
-#        rows.append(s)
-
-#    columns = sorted({k for row in rows for k in row.keys()})
-#    columns = {k for row in rows for k in row.keys()}
     columns = rows[0].keys()
+#    columns = sorted({k for row in rows for k in row.keys()})
 
     return render_template_string(
         HTML_TEMPLATE,
@@ -235,8 +229,3 @@ def sections():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
-
-#if __name__ == "__main__":
-#    app.run(port=5000, debug=True)
-
-
