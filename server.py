@@ -1,13 +1,12 @@
-from flask import Flask, render_template_string, send_file
+from flask import Flask, render_template_string, send_file, request
 import requests
 import pandas as pd
 import io
 from datetime import datetime
 from functools import lru_cache
+import os
 
 app = Flask(__name__)
-
-TERM = "202610"
 
 # -----------------------------
 # HTML TEMPLATE
@@ -20,6 +19,10 @@ HTML_TEMPLATE = """
     <style>
         body { font-family: Arial; margin: 20px; }
         h2 { margin-bottom: 10px; }
+
+        .controls {
+            margin-bottom: 10px;
+        }
 
         .table-container {
             max-height: 80vh;
@@ -50,19 +53,29 @@ HTML_TEMPLATE = """
         }
 
         button {
-            margin-bottom: 10px;
-            padding: 8px 12px;
+            padding: 6px 10px;
             cursor: pointer;
         }
     </style>
 </head>
 
 <body>
-    <h2>FC MATH/STAT Sections, Fall 26 ({{ count }} rows)</h2>
+    <h2>FC MATH/STAT Sections ({{ count }} rows)</h2>
 
-    <a href="/download">
-        <button>Download Excel</button>
-    </a>
+    <div class="controls">
+        <form method="get" action="/sections" style="display:inline;">
+            <label for="term">Term:</label>
+            <select name="term" onchange="this.form.submit()">
+                <option value="202610" {% if term == "202610" %}selected{% endif %}>Fall 2026</option>
+                <option value="202530" {% if term == "202530" %}selected{% endif %}>Spring 2025</option>
+                <option value="202520" {% if term == "202520" %}selected{% endif %}>Fall 2025</option>
+            </select>
+        </form>
+
+        <a href="/download?term={{ term }}">
+            <button>Download Excel</button>
+        </a>
+    </div>
 
     <div class="table-container">
         <table>
@@ -92,13 +105,13 @@ HTML_TEMPLATE = """
 # -----------------------------
 # CORE DATA FUNCTION (CACHED)
 # -----------------------------
-@lru_cache(maxsize=1)
-def get_processed_rows():
+@lru_cache(maxsize=3)
+def get_processed_rows(term):
     today = datetime.today()
 
     # --- COURSES ---
-    url = f"https://schedule.nocccd.edu/data/{TERM}/courses.json?p=FuckYouAllForBreakingThis"
-    courses = requests.get(url).json()
+    courses_url = f"https://schedule.nocccd.edu/data/{term}/courses.json?p=FuckYouAllForBreakingThis"
+    courses = requests.get(courses_url).json()
 
     course_dict = {}
     for c in courses:
@@ -111,8 +124,8 @@ def get_processed_rows():
         }
 
     # --- SECTIONS ---
-    url = f"https://schedule.nocccd.edu/data/{TERM}/sections.json?p=FuckYouAllForBreakingThis"
-    data = requests.get(url).json()
+    sections_url = f"https://schedule.nocccd.edu/data/{term}/sections.json?p=FuckYouAllForBreakingThis"
+    data = requests.get(sections_url).json()
 
     rows = []
 
@@ -121,6 +134,10 @@ def get_processed_rows():
             continue
         if s.get("sectSubjCode") not in ["MATH", "STAT"]:
             continue
+
+        meetings = s.get("sectMeetings", [])
+        if not meetings:
+            continue  # prevent crash
 
         s_crn = s.get("sectCrn","")
         s_name = f"{s.get('sectSubjCode','')} {s.get('sectCrseNumb','')}"
@@ -139,8 +156,6 @@ def get_processed_rows():
         s_wcap = s.get("sectWaitCapacity",0)
         s_instr = s.get("sectInstrName","")
         s_insm  = s.get("sectInsmCode","")
-
-        meetings = s.get("sectMeetings", [])
 
         s_mode = (
             "Campus" if s_insm=="02" else
@@ -209,20 +224,24 @@ def home():
 
 @app.route("/sections")
 def sections():
-    rows = get_processed_rows()
+    term = request.args.get("term", "202610")
+
+    rows = get_processed_rows(term)
     columns = rows[0].keys()
 
     return render_template_string(
         HTML_TEMPLATE,
         rows=rows,
         columns=columns,
-        count=len(rows)
+        count=len(rows),
+        term=term
     )
 
 @app.route("/download")
 def download():
-    rows = get_processed_rows()
+    term = request.args.get("term", "202610")
 
+    rows = get_processed_rows(term)
     df = pd.DataFrame(rows)
 
     output = io.BytesIO()
@@ -231,7 +250,7 @@ def download():
 
     return send_file(
         output,
-        download_name="sections.xlsx",
+        download_name=f"sections_{term}.xlsx",
         as_attachment=True
     )
 
@@ -239,6 +258,5 @@ def download():
 # RUN
 # -----------------------------
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
