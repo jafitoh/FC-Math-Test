@@ -165,6 +165,13 @@ def get_processed_rows(term):
             "WTF?"
         )
 
+        #why did chatgpt remove this?
+        s_loc1 = meetings[0].get("bldgCode","WTF???")
+        # if "WTF???"==s_loc1: print(s_crn)
+        if "Hybrid"==s_mode:
+            if "ONLINE"==s_loc1:
+                s_mode = "Online+Exams"
+
         s_start = datetime.strptime(meetings[0]["startDate"], "%m/%d/%Y")
         s_end   = datetime.strptime(meetings[0]["endDate"], "%m/%d/%Y")
 
