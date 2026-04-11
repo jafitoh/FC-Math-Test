@@ -72,7 +72,23 @@ HTML_TEMPLATE = """
             </select>
         </form>
 
-        <a href="/download?term={{ term }}">
+        <form method="get" action="/sections" style="display:inline;">
+            <label for="mathOnly">Subjects:</label>
+            <select name="mathOnly" onchange="this.form.submit()">
+                <option value=True {% if mathOnly == True %}selected{% endif %}>MATH/STAT</option>
+                <option value=False {% if mathOnly == False %}selected{% endif %}>ALL</option>
+            </select>
+        </form>
+        
+        <form method="get" action="/sections" style="display:inline;">
+            <label for="fcOnly">Schools:</label>
+            <select name="fcOnly" onchange="this.form.submit()">
+                <option value=True {% if fcOnly == True %}selected{% endif %}>FC</option>
+                <option value=False {% if fcOnly == False %}selected{% endif %}>ALL</option>
+            </select>
+        </form>
+
+        <a href="/download?term={{ term }}&mathOnly={{ mathOnly }}&fcOnly={{ fcOnly }}">
             <button>Download Excel</button>
         </a>
     </div>
@@ -106,7 +122,7 @@ HTML_TEMPLATE = """
 # CORE DATA FUNCTION (CACHED)
 # -----------------------------
 @lru_cache(maxsize=3)
-def get_processed_rows(term):
+def get_processed_rows(term, mathOnly, fcOnly):
     today = datetime.today()
 
     # --- COURSES ---
@@ -130,9 +146,9 @@ def get_processed_rows(term):
     rows = []
 
     for s in data:
-        if s.get("sectCampCode") != "2":
+        if fcOnly and s.get("sectCampCode") != "2":
             continue
-        if s.get("sectSubjCode") not in ["MATH", "STAT"]:
+        if mathOnly and s.get("sectSubjCode") not in ["MATH", "STAT"]:
             continue
 
         meetings = s.get("sectMeetings", [])
@@ -232,8 +248,10 @@ def home():
 @app.route("/sections")
 def sections():
     term = request.args.get("term", "202610")
+    mathOnly = request.args.get("mathOnly", True)
+    fcOnly = request.args.get("fcOnly", True)
 
-    rows = get_processed_rows(term)
+    rows = get_processed_rows(term, mathOnly, fcOnly)
     columns = rows[0].keys()
 
     return render_template_string(
@@ -241,14 +259,18 @@ def sections():
         rows=rows,
         columns=columns,
         count=len(rows),
-        term=term
+        term=term,
+        mathOnly=mathOnly,
+        fcOnly=fcOnly
     )
 
 @app.route("/download")
 def download():
     term = request.args.get("term", "202610")
+    mathOnly = request.args.get("mathOnly", True)
+    fcOnly = request.args.get("fcOnly", True)
 
-    rows = get_processed_rows(term)
+    rows = get_processed_rows(term, mathOnly, fcOnly)
     df = pd.DataFrame(rows)
 
     output = io.BytesIO()
