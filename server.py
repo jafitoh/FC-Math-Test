@@ -143,6 +143,18 @@ def get_processed_rows(term, mathOnly, fcOnly):
     sections_url = f"https://schedule.nocccd.edu/data/{term}/sections.json?p=FuckYouAllForBreakingThis"
     data = requests.get(sections_url).json()
 
+    modeCodes = {
+        "02":  "Campus",
+        "04":  "Campus",    #"Lab",
+        "04E": "Campus",    #"Lab",
+        "72":  "Online",
+        "72L": "Online",
+        "HY":  "Hybrid",
+        "71":  "Zoom",
+        "20":  "Work Exp",
+        "40":  "Ind Study"
+    }
+
     rows = []
 
     for s in data:
@@ -171,15 +183,10 @@ def get_processed_rows(term, mathOnly, fcOnly):
         s_wait = s.get("sectWaitCount",0)
         s_wcap = s.get("sectWaitCapacity",0)
         s_instr = s.get("sectInstrName","")
-        s_insm  = s.get("sectInsmCode","")
+        s_schd  = s.get("sectSchdCode","")
+#        s_insm  = s.get("sectInsmCode","")
 
-        s_mode = (
-            "Campus" if s_insm=="02" else
-            "Online" if s_insm=="72" else
-            "Tutoring" if s_insm=="04" else
-            "Hybrid" if s_insm=="HYA" else
-            "WTF?"
-        )
+        s_mode = modeCodes.get(s_schd, "WTF?")
 
         #why did chatgpt remove this?
         s_loc1 = meetings[0].get("bldgCode","WTF???")
