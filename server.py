@@ -75,16 +75,16 @@ HTML_TEMPLATE = """
         <form method="get" action="/sections" style="display:inline;">
             <label for="mathOnly">Subjects:</label>
             <select name="mathOnly" onchange="this.form.submit()">
-                <option value=True {% if mathOnly == True %}selected{% endif %}>MATH/STAT</option>
-                <option value=False {% if mathOnly == False %}selected{% endif %}>ALL</option>
+                <option value="True" {% if mathOnly == "True" %}selected{% endif %}>MATH/STAT</option>
+                <option value="False" {% if mathOnly == "False" %}selected{% endif %}>ALL</option>
             </select>
         </form>
         
         <form method="get" action="/sections" style="display:inline;">
             <label for="fcOnly">Schools:</label>
             <select name="fcOnly" onchange="this.form.submit()">
-                <option value=True {% if fcOnly == True %}selected{% endif %}>FC</option>
-                <option value=False {% if fcOnly == False %}selected{% endif %}>ALL</option>
+                <option value="True" {% if fcOnly == "True" %}selected{% endif %}>FC</option>
+                <option value="False" {% if fcOnly == "False" %}selected{% endif %}>ALL</option>
             </select>
         </form>
 
@@ -146,9 +146,9 @@ def get_processed_rows(term, mathOnly, fcOnly):
     rows = []
 
     for s in data:
-        if fcOnly and s.get("sectCampCode") != "2":
+        if "True"==mathOnly and s.get("sectSubjCode") not in ["MATH", "STAT"]:
             continue
-        if mathOnly and s.get("sectSubjCode") not in ["MATH", "STAT"]:
+        if "True"==fcOnly and s.get("sectCampCode") != "2":
             continue
 
         meetings = s.get("sectMeetings", [])
@@ -248,8 +248,8 @@ def home():
 @app.route("/sections")
 def sections():
     term = request.args.get("term", "202610")
-    mathOnly = request.args.get("mathOnly", True)
-    fcOnly = request.args.get("fcOnly", True)
+    mathOnly = request.args.get("mathOnly", "True")
+    fcOnly = request.args.get("fcOnly", "True")
 
     rows = get_processed_rows(term, mathOnly, fcOnly)
     columns = rows[0].keys()
@@ -267,8 +267,8 @@ def sections():
 @app.route("/download")
 def download():
     term = request.args.get("term", "202610")
-    mathOnly = request.args.get("mathOnly", True)
-    fcOnly = request.args.get("fcOnly", True)
+    mathOnly = request.args.get("mathOnly", "True")
+    fcOnly = request.args.get("fcOnly", "True")
 
     rows = get_processed_rows(term, mathOnly, fcOnly)
     df = pd.DataFrame(rows)
