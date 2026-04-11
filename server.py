@@ -60,15 +60,15 @@ HTML_TEMPLATE = """
 </head>
 
 <body>
-    <h2>FC MATH/STAT Sections ({{ count }} rows)</h2>
+    <h2>Actually readable FC MATH/STAT class schedule b/c NOCCCD sucks ({{ count }} rows)</h2>
 
     <div class="controls">
         <form method="get" action="/sections" style="display:inline;">
             <label for="term">Term:</label>
             <select name="term" onchange="this.form.submit()">
+                <option value="202520" {% if term == "202520" %}selected{% endif %}>Spring 2026</option>
+                <option value="202530" {% if term == "202530" %}selected{% endif %}>Summer 2026</option>
                 <option value="202610" {% if term == "202610" %}selected{% endif %}>Fall 2026</option>
-                <option value="202530" {% if term == "202530" %}selected{% endif %}>Spring 2025</option>
-                <option value="202520" {% if term == "202520" %}selected{% endif %}>Fall 2025</option>
             </select>
         </form>
 
@@ -196,9 +196,9 @@ def get_processed_rows(term):
                 "Course": s_alias+" - "+s_title if m_row==1 else "",
                 "Status": s_status if m_row==1 else "",
                 "CRN": s_crn,
-                "Z/Row": m_row,
+                "Row": m_row,
                 "Cred": s_cred if m_row==1 else "",
-                "M/Days": m_days,
+                "Days": m_days,
                 "Time": m_time,
                 "Loc": m_room,
                 "Cap": s_cap if m_row==1 else "",
