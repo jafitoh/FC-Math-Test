@@ -45,6 +45,7 @@ HTML_TEMPLATE = """
         th {
             background: #f4f4f4;
             position: sticky;
+            text-align: left;
             top: 0;
         }
 
@@ -60,7 +61,7 @@ HTML_TEMPLATE = """
 </head>
 
 <body>
-    <h2>Readable class schedule that NOCCCD bastards removed ({{ count }} rows)</h2>
+    <h2>Actually readable class schedule that NOCCCD bastards removed ({{ count }} rows)</h2>
 
     <div class="controls">
         <form method="get" action="/sections" style="display:inline;">
@@ -222,7 +223,14 @@ def get_processed_rows(term, mathOnly, fcOnly):
         for m in meetings:
             m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay"]])
             m_time = f"{m.get('beginTime','')} - {m.get('endTime','')}" if m.get('beginTime') else ""
-            m_room = f"{m.get('bldgDesc','')} {m.get('roomCode','')}" if m.get('bldgDesc') else ""
+
+            m_bldg = m.get('bldgDesc',"")
+            m_room = m.get('roomCode',"")
+            m_loc  = m_bldg + " " + m_room
+            if "ZOOM ZOOM" == m_loc:
+                m_loc = "ZOOM"
+            elif "ONLINE ONLINE" == m_loc:
+                m_loc = "ONLINE"
 
             m_start = m.get("startDate","")
             m_end   = m.get("endDate","")
@@ -232,25 +240,26 @@ def get_processed_rows(term, mathOnly, fcOnly):
             m_instr = m.get("meetInstrName", s_instr)
 
             rows.append({
-                "Course": s_alias+" - "+s_title if m_row==1 else "",
-                "Status": s_status if m_row==1 else "",
+                "Course": s_alias if m_row==1 else "",
+                "Title": s_title if m_row==1 else "",
                 "CRN": s_crn,
                 "Row": m_row,
+                "Status": s_status if m_row==1 else "",
                 "Cred": s_cred if m_row==1 else "",
                 "Days": m_days,
                 "Time": m_time,
-                "Loc": m_room,
+                "Location": m_loc,
                 "Cap": s_cap if m_row==1 else "",
                 "Act": s_act if m_row==1 else "",
                 "Rem": s_rem if m_row==1 else "",
                 "Wait": s_wait if m_row==1 else "",
                 "WtCp": s_wcap if m_row==1 else "",
-                "Instr": m_instr,
+                "Instructor": m_instr,
                 "Dates": m_start+"-"+m_end,
                 "Weeks": m_wks,
                 "Mode": s_mode if m_row==1 else "",
                 "Cost": s_cost if m_row==1 else "",
-                "Desc": s_desc if m_row==1 else ""
+                "Description": s_desc if m_row==1 else ""
             })
 
             m_row += 1
