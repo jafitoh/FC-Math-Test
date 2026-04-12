@@ -60,7 +60,7 @@ HTML_TEMPLATE = """
 </head>
 
 <body>
-    <h2>Actually readable FC MATH/STAT class schedule b/c NOCCCD sucks ({{ count }} rows)</h2>
+    <h2>Readable class schedule that NOCCCD assholes removed ({{ count }} rows)</h2>
 
     <div class="controls">
         <form method="get" action="/sections" style="display:inline;">
