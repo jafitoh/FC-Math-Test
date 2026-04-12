@@ -197,10 +197,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
         s_desc = s.get("sectLongText","")
 
         s_mode = modeCodes.get(s_schd, "WTF?")
-
-        #why did chatgpt remove this?
         s_loc1 = meetings[0].get("bldgCode","WTF???")
-        # if "WTF???"==s_loc1: print(s_crn)
         if "Hybrid"==s_mode:
             if "ONLINE"==s_loc1:
                 s_mode = "Online+Exams"
@@ -219,6 +216,11 @@ def get_processed_rows(term, mathOnly, fcOnly):
         else:
             s_status = "CLOSED"
 
+        s_xgrp  = ""
+        s_xlst  = s.get("sectXlst", [])
+        for x in s_xlst:
+            s_xgrp += x.get("xlstGrp", "")
+        
         m_row = 1
         for m in meetings:
             m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay"]])
@@ -258,6 +260,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
                 "Dates": m_start+"-"+m_end,
                 "Weeks": m_wks,
                 "Mode": s_mode if m_row==1 else "",
+                "X-list": s_xgrp,
                 "Cost": s_cost if m_row==1 else "",
                 "Description": s_desc if m_row==1 else ""
             })
