@@ -186,6 +186,8 @@ def get_processed_rows(term, mathOnly, fcOnly):
         s_mode = modeCodes.get(s_schd, "WTF?")
 
         #why did chatgpt remove this?
+        if 0==len(meetings):
+            continue
         s_loc1 = meetings[0].get("bldgCode","WTF???")
         # if "WTF???"==s_loc1: print(s_crn)
         if "Hybrid"==s_mode:
@@ -256,6 +258,9 @@ def sections():
     fcOnly = request.args.get("fcOnly", "True")
 
     rows = get_processed_rows(term, mathOnly, fcOnly)
+    if 0==len(rows):
+        return '<h3>Empty data set. Go to <a href="/sections">/sections</a></h3>'
+
     columns = rows[0].keys()
 
     return render_template_string(
