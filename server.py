@@ -60,7 +60,7 @@ HTML_TEMPLATE = """
 </head>
 
 <body>
-    <h2>Readable class schedule that NOCCCD assholes removed ({{ count }} rows)</h2>
+    <h2>Readable class schedule that NOCCCD bastards removed ({{ count }} rows)</h2>
 
     <div class="controls">
         <form method="get" action="/sections" style="display:inline;">
@@ -80,7 +80,7 @@ HTML_TEMPLATE = """
             <label for="fcOnly">Schools:</label>
             <select name="fcOnly" onchange="this.form.submit()">
                 <option value="True" {% if fcOnly == "True" %}selected{% endif %}>FC</option>
-                <option value="False" {% if fcOnly == "False" %}selected{% endif %}>ALL</option>
+                <option value="False" {% if fcOnly == "False" %}selected{% endif %}>FC+CC</option>
             </select>
         </form>
         
@@ -152,6 +152,8 @@ def get_processed_rows(term, mathOnly, fcOnly):
         "40":  "Ind Study"
     }
 
+    costCodes = ["LTCP", "NSTC", "NTC", "OER", "MOER", "NOER"]
+
     rows = []
 
     for s in data:
@@ -163,6 +165,15 @@ def get_processed_rows(term, mathOnly, fcOnly):
         meetings = s.get("sectMeetings", [])
         if not meetings:
             continue  # prevent crash
+        if 0==len(meetings):
+            continue
+
+        attribs = s.get("sectAttr", [])
+        s_cost = ""
+        for a in attribs:
+            a_code = a.get("attrCode", "")
+            if a_code in costCodes:
+                s_cost += a.get("attrDesc", "")
 
         s_crn = s.get("sectCrn","")
         s_name = f"{s.get('sectSubjCode','')} {s.get('sectCrseNumb','')}"
@@ -182,12 +193,11 @@ def get_processed_rows(term, mathOnly, fcOnly):
         s_instr = s.get("sectInstrName","")
         s_schd  = s.get("sectSchdCode","")
 #        s_insm  = s.get("sectInsmCode","")
+        s_desc = s.get("sectLongText","")
 
         s_mode = modeCodes.get(s_schd, "WTF?")
 
         #why did chatgpt remove this?
-        if 0==len(meetings):
-            continue
         s_loc1 = meetings[0].get("bldgCode","WTF???")
         # if "WTF???"==s_loc1: print(s_crn)
         if "Hybrid"==s_mode:
@@ -234,10 +244,13 @@ def get_processed_rows(term, mathOnly, fcOnly):
                 "Act": s_act if m_row==1 else "",
                 "Rem": s_rem if m_row==1 else "",
                 "Wait": s_wait if m_row==1 else "",
+                "WtCp": s_wcap if m_row==1 else "",
                 "Instr": m_instr,
-                "Date": m_start+"-"+m_end,
+                "Dates": m_start+"-"+m_end,
                 "Weeks": m_wks,
-                "Mode": s_mode if m_row==1 else ""
+                "Mode": s_mode if m_row==1 else "",
+                "Cost": s_cost if m_row==1 else "",
+                "Desc": s_desc if m_row==1 else ""
             })
 
             m_row += 1
