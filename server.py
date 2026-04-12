@@ -128,12 +128,18 @@ def get_processed_rows(term, mathOnly, fcOnly):
 
     course_dict = {}
     for c in courses:
-        c_name  = f"{c['crseSubjCode']} {c['crseCrseNumb']}"
-        c_alias = f"{c['crseSubjCode']} {c['crseAlias']}"
+        c_subj  = c.get("crseSubjCode", "")
+        c_name  = c_subj + " " + c.get("crseCrseNumb", "")
+        c_alias = c_subj + " " + c.get("crseAlias", "")
+        c_title = c.get("crseTitle","")
+        c_tidx = c_title.find( "(formerly" )
+        if 0 < c_tidx:
+            c_title = c_title[:c_tidx]
         course_dict[c_name] = {
             "Alias": c_alias,
-            "Title": c["crseTitle"],
-            "Credit": c["crseCredHrLow"]
+            "Title": c_title,
+            "CredLo": c.get("crseCredHrLow","")
+            "CredHi": c.get("crseCredHrHigh","")
         }
 
     # --- SECTIONS ---
@@ -182,9 +188,10 @@ def get_processed_rows(term, mathOnly, fcOnly):
         if s_name not in course_dict:
             continue
 
-        s_alias = course_dict[s_name]["Alias"]
-        s_title = course_dict[s_name]["Title"]
-        s_cred  = course_dict[s_name]["Credit"]
+        s_alias  =  course_dict[s_name]["Alias"]
+        s_title  = course_dict[s_name]["Title"]
+        s_credlo = course_dict[s_name]["CredLo"]
+        s_credhi = course_dict[s_name]["CredHi"]
 
         s_cap  = s.get("sectMaxEnrl",0)
         s_act  = s.get("sectEnrl",0)
@@ -243,25 +250,26 @@ def get_processed_rows(term, mathOnly, fcOnly):
 
             rows.append({
                 "Course": s_alias if m_row==1 else "",
-                "Title": s_title if m_row==1 else "",
-                "CRN": s_crn,
-                "Row": m_row,
+                "Title":  s_title if m_row==1 else "",
+                "CRN":    s_crn,
+                "Row":    m_row,
                 "Status": s_status if m_row==1 else "",
-                "Cred": s_cred if m_row==1 else "",
-                "Days": m_days,
-                "Time": m_time,
+                "Cred":   s_credlo if m_row==1 else "",
+                "CredHi": s_credhi if m_row==1 else "",
+                "Days":   m_days,
+                "Time":   m_time,
                 "Location": m_loc,
-                "Cap": s_cap if m_row==1 else "",
-                "Act": s_act if m_row==1 else "",
-                "Rem": s_rem if m_row==1 else "",
+                "Cap":  s_cap if m_row==1 else "",
+                "Act":  s_act if m_row==1 else "",
+                "Rem":  s_rem if m_row==1 else "",
                 "Wait": s_wait if m_row==1 else "",
                 "WtCp": s_wcap if m_row==1 else "",
                 "Instructor": m_instr,
                 "Dates": m_start+"-"+m_end,
                 "Weeks": m_wks,
-                "Mode": s_mode if m_row==1 else "",
+                "Mode":  s_mode if m_row==1 else "",
                 "X-list": s_xgrp,
-                "Cost": s_cost if m_row==1 else "",
+                "Cost":   s_cost if m_row==1 else "",
                 "Description": s_desc if m_row==1 else ""
             })
 
