@@ -70,24 +70,20 @@ HTML_TEMPLATE = """
                 <option value="202530" {% if term == "202530" %}selected{% endif %}>Summer 2026</option>
                 <option value="202610" {% if term == "202610" %}selected{% endif %}>Fall 2026</option>
             </select>
-        </form>
-
-        <form method="get" action="/sections" style="display:inline;">
+        
             <label for="mathOnly">Subjects:</label>
             <select name="mathOnly" onchange="this.form.submit()">
                 <option value="True" {% if mathOnly == "True" %}selected{% endif %}>MATH/STAT</option>
                 <option value="False" {% if mathOnly == "False" %}selected{% endif %}>ALL</option>
             </select>
-        </form>
         
-        <form method="get" action="/sections" style="display:inline;">
             <label for="fcOnly">Schools:</label>
             <select name="fcOnly" onchange="this.form.submit()">
                 <option value="True" {% if fcOnly == "True" %}selected{% endif %}>FC</option>
                 <option value="False" {% if fcOnly == "False" %}selected{% endif %}>ALL</option>
             </select>
         </form>
-
+        
         <a href="/download?term={{ term }}&mathOnly={{ mathOnly }}&fcOnly={{ fcOnly }}">
             <button>Download Excel</button>
         </a>
@@ -152,6 +148,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
         "HY":  "Hybrid",
         "71":  "Zoom",
         "20":  "Work Exp",
+        "90":  "Work Exp",
         "40":  "Ind Study"
     }
 
