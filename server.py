@@ -138,7 +138,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
         course_dict[c_name] = {
             "Alias": c_alias,
             "Title": c_title,
-            "CredLo": c.get("crseCredHrLow","")
+            "CredLo": c.get("crseCredHrLow",""),
             "CredHi": c.get("crseCredHrHigh","")
         }
 
