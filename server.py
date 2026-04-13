@@ -284,6 +284,10 @@ def get_processed_rows(term, mathOnly, fcOnly):
 def home():
     return '<h3>Go to <a href="/sections">/sections</a></h3>'
 
+@app.route("/ping")
+def ping():
+    return "ok", 200
+    
 @app.route("/sections")
 def sections():
     term = request.args.get("term", "202610")
