@@ -323,9 +323,10 @@ def get_processed_rows(term, mathOnly, fcOnly):
 
         s_start = s_topRow.get("startDate","")
         s_end   = s_topRow.get("endDate","")
-        s_delta = datetime.strptime(s_end, "%m/%d/%Y") - datetime.strptime(s_start, "%m/%d/%Y")
-        s_wks   = int(round(s_delta.days / 7,0))
-        s_topRow["Weeks"] = s_wks
+#        s_delta = datetime.strptime(s_end, "%m/%d/%Y") - datetime.strptime(s_start, "%m/%d/%Y")
+#        s_wks   = int(round(s_delta.days / 7,0))
+#        s_topRow["Weeks"] = s_wks
+        s_topRow["Weeks"] = 69
 
         rows.append(s_topRow)
         if 1 < len(s_rows):
