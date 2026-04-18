@@ -222,7 +222,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
             "Title":  s_title,
             "CRN":    s_crn,
             "Row":    0,
-            "Status": s_status,
+            "Status":   "", # to be filled in from meetings-
             "Cred":   s_credlo,
             "CredHi": s_credhi,
             "Days":     "", # to be filled in from meetings-
@@ -234,9 +234,9 @@ def get_processed_rows(term, mathOnly, fcOnly):
             "Wait": s_wait,
             "WtCp": s_wcap,
             "Instructor": s_instr,
-            "Start": "", # to be filled in from meetings-
-            "End": "", # to be filled in from meetings-
-            "Weeks": "", # to be filled in from meetings-
+            "Start": "01/01/2000", # to be updated from meetings-
+            "End": "12/31/2999", # to be updated from meetings-
+            "Weeks": "", # to be computed from Start/End-
             "Mode":  s_mode,
             "X-list": s_xgrp,
             "Cost":   s_cost,
@@ -266,17 +266,17 @@ def get_processed_rows(term, mathOnly, fcOnly):
                 s_topRow["Location"] += ", "
             s_topRow["Location"] += m_loc
 
-            m_start = m.get("startDate","")
-            m_end   = m.get("endDate","")
-            m_delta = datetime.strptime(m_end, "%m/%d/%Y") - datetime.strptime(m_start, "%m/%d/%Y")
+            m_start  = m.get("startDate","")
+            m_end    = m.get("endDate","")
+            m_startx = datetime.strptime(m_start, "%m/%d/%Y")
+            m_endx   = datetime.strptime(m_end, "%m/%d/%Y")
+            m_delta = m_endx - m_startx
             m_wks   = int(round(m_delta.days / 7,0))
 
-            if 1 == m_row:
+            if m_startx < datetime.strptime(s_topRow["Start"], "%m/%d/%Y"): 
                 s_topRow["Start"] = m_start
-                s_topRow["End"]   = m_end
-            else:
-                s_topRow["Start"] = min( s_topRow["Start"], m_start )
-                s_topRow["End"]   = max( s_topRow["End"], m_end )
+            if m_endx > datetime.strptime(s_topRow["End"], "%m/%d/%Y"): 
+                s_topRow["End"] = m_end
                                                         
             m_instr = m.get("meetInstrName", s_instr)
 
