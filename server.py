@@ -259,12 +259,12 @@ def get_processed_rows(term, mathOnly, fcOnly):
         m_row = 1
         for m in meetings:
             m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay"]])
-            if 1 < m_row:
+            if m_row > 1 and len(m_days) > 0:
                 s_topRow["Days"] += ", "
             s_topRow["Days"] += m_days
                 
             m_time = f"{m.get('beginTime','')} - {m.get('endTime','')}" if m.get('beginTime') else ""
-            if 1 < m_row:
+            if m_row > 1 and len(m_time) > 0:
                 s_topRow["Time"] += ", "
             s_topRow["Time"] += m_time
 
@@ -275,7 +275,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
                 m_loc = "ZOOM"
             elif "ONLINE ONLINE" == m_loc:
                 m_loc = "ONLINE"
-            if 1 < m_row:
+            if m_row > 1 and len(m_loc) > 0:
                 s_topRow["Location"] += ", "
             s_topRow["Location"] += m_loc
 
@@ -321,15 +321,14 @@ def get_processed_rows(term, mathOnly, fcOnly):
 
             m_row += 1
 
-        s_start = s_topRow.get("startDate","")
-        s_end   = s_topRow.get("endDate","")
-#        s_delta = datetime.strptime(s_end, "%m/%d/%Y") - datetime.strptime(s_start, "%m/%d/%Y")
-#        s_wks   = int(round(s_delta.days / 7,0))
-#        s_topRow["Weeks"] = s_wks
-        s_topRow["Weeks"] = 69
+        s_start = s_topRow.get("Start","")
+        s_end   = s_topRow.get("End","")
+        s_delta = datetime.strptime(s_end, "%m/%d/%Y") - datetime.strptime(s_start, "%m/%d/%Y")
+        s_wks   = int(round(s_delta.days / 7,0))
+        s_topRow["Weeks"] = s_wks
 
         rows.append(s_topRow)
-        if 1 < len(s_rows):
+        if len(s_rows) > 1:
             rows.extend(s_rows)
     
     return rows
