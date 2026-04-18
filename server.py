@@ -248,7 +248,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
 
         m_row = 1
         for m in meetings:
-            m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay"]])
+            m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay","sunDay"]])
             if m_row > 1:
                 s_topRow["Days"] += "/"
             s_topRow["Days"] += m_days
