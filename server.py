@@ -166,13 +166,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
     for s in data:
         if "True"==mathOnly and s.get("sectSubjCode") not in ["MATH", "STAT"]:
             continue
-        if "True"==fcOnly and s.get("sectCampCode") != "2":
-            continue
-
-        meetings = s.get("sectMeetings", [])
-        if not meetings:
-            continue  # prevent crash
-        if 0==len(meetings):
+        if "True"==fcOnly and s.get("sectCampCode") not in [ "2", "2NH" ]:
             continue
 
         attribs = s.get("sectAttr", [])
@@ -203,26 +197,19 @@ def get_processed_rows(term, mathOnly, fcOnly):
 #        s_insm  = s.get("sectInsmCode","")
         s_desc = s.get("sectLongText","")
         s_instr = s.get("sectInstrName","")
-
+        
+        meetings = s.get("sectMeetings", [])
+#        if not meetings:
+#            continue  # prevent crash
+#        if 0==len(meetings):
+#            continue
+            
         s_mode = modeCodes.get(s_schd, "WTF?")
-        s_loc1 = meetings[0].get("bldgCode","WTF???")
-        if "Hybrid"==s_mode:
-            if "ONLINE"==s_loc1:
-                s_mode = "Online+Exams"
-
-        s_start = datetime.strptime(meetings[0]["startDate"], "%m/%d/%Y")
-        s_end   = datetime.strptime(meetings[0]["endDate"], "%m/%d/%Y")
-
-        if s_end < today:
-            s_status = "Completed"
-        elif s_start <= today:
-            s_status = "In Progress"
-        elif s_rem > 0:
-            s_status = "OPEN"
-        elif s_wcap > s_wait:
-            s_status = "Waitlisted"
+        if 0 == len(meetings):
+            s_mode = "NO MEETINGS?!?!"
         else:
-            s_status = "CLOSED"
+            if "Hybrid"==s_mode and "ONLINE"==meetings[0].get("bldgCode","WTF???"):
+                    s_mode = "Online+Exams"
 
         s_xgrp  = ""
         s_xlst  = s.get("sectXlst", [])
@@ -323,10 +310,29 @@ def get_processed_rows(term, mathOnly, fcOnly):
 
         s_start = s_topRow.get("Start","")
         s_end   = s_topRow.get("End","")
-        s_delta = datetime.strptime(s_end, "%m/%d/%Y") - datetime.strptime(s_start, "%m/%d/%Y")
-        s_wks   = int(round(s_delta.days / 7,0))
-        s_topRow["Weeks"] = s_wks
 
+        if ""==s_start or ""==s_end:
+            s_wks = "???"
+            s_status = "???"
+        else:
+            s_startx = datetime.strptime( s_start, "%m/%d/%Y")
+            s_endx   = datetime.strptime( s_end, "%m/%d/%Y")
+            s_delta = s_endx - s_startx
+            s_wks   = int(round(s_delta.days / 7,0))
+            if s_endx < today:
+                s_status = "Completed"
+            elif s_startx <= today:
+                s_status = "In Progress"
+            elif s_rem > 0:
+                s_status = "OPEN"
+            elif s_wcap > s_wait:
+                s_status = "Waitlisted"
+            else:
+                s_status = "CLOSED"
+
+        s_topRow["Weeks"] = s_wks
+        s_topRow["Status"] = s_status
+        
         rows.append(s_topRow)
         if len(s_rows) > 1:
             rows.extend(s_rows)
