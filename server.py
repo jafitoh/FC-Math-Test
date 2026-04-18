@@ -202,6 +202,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
         s_schd  = s.get("sectSchdCode","")
 #        s_insm  = s.get("sectInsmCode","")
         s_desc = s.get("sectLongText","")
+        s_instr = s.get("sectInstrName","")
 
         s_mode = modeCodes.get(s_schd, "WTF?")
         s_loc1 = meetings[0].get("bldgCode","WTF???")
@@ -228,10 +229,44 @@ def get_processed_rows(term, mathOnly, fcOnly):
         for x in s_xlst:
             s_xgrp += x.get("xlstGrp", "")
         
+        s_rows = []
+        s_topRow = {
+            "Course": s_alias,
+            "Title":  s_title,
+            "CRN":    s_crn,
+            "Row":    0,
+            "Status": s_status,
+            "Cred":   s_credlo,
+            "CredHi": s_credhi,
+            "Days":     "", # to be filled in from meetings-
+            "Time":     "", # to be filled in from meetings-
+            "Location": "", # to be filled in from meetings-
+            "Cap":  s_cap,
+            "Act":  s_act,
+            "Rem":  s_rem,
+            "Wait": s_wait,
+            "WtCp": s_wcap,
+            "Instructor": s_instr,
+            "Start": "", # to be filled in from meetings-
+            "End": "", # to be filled in from meetings-
+            "Weeks": "", # to be filled in from meetings-
+            "Mode":  s_mode,
+            "X-list": s_xgrp,
+            "Cost":   s_cost,
+            "Description": s_desc
+        }
+
         m_row = 1
         for m in meetings:
             m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay"]])
+            if 1 < m_row:
+                s_topRow["Days"] += ", "
+            s_topRow["Days"] += m_days
+                
             m_time = f"{m.get('beginTime','')} - {m.get('endTime','')}" if m.get('beginTime') else ""
+            if 1 < m_row:
+                s_topRow["Time"] += ", "
+            s_topRow["Time"] += m_time
 
             m_bldg = m.get('bldgDesc',"")
             m_room = m.get('roomCode',"")
@@ -240,41 +275,62 @@ def get_processed_rows(term, mathOnly, fcOnly):
                 m_loc = "ZOOM"
             elif "ONLINE ONLINE" == m_loc:
                 m_loc = "ONLINE"
+            if 1 < m_row:
+                s_topRow["Location"] += ", "
+            s_topRow["Location"] += m_loc
 
             m_start = m.get("startDate","")
             m_end   = m.get("endDate","")
             m_delta = datetime.strptime(m_end, "%m/%d/%Y") - datetime.strptime(m_start, "%m/%d/%Y")
             m_wks   = int(round(m_delta.days / 7,0))
 
+            if 1 == m_row:
+                s_topRow["Start"] = m_start
+                s_topRow["End"]   = m_end
+            else:
+                s_topRow["Start"] = min( s_topRow["Start"], m_start )
+                s_topRow["End"]   = max( s_topRow["End"], m_end )
+                                                        
             m_instr = m.get("meetInstrName", s_instr)
 
-            rows.append({
-                "Course": s_alias if m_row==1 else "",
-                "Title":  s_title if m_row==1 else "",
+            s_rows.append({
+                "Course": "",
+                "Title":  "",
                 "CRN":    s_crn,
                 "Row":    m_row,
-                "Status": s_status if m_row==1 else "",
-                "Cred":   s_credlo if m_row==1 else "",
-                "CredHi": s_credhi if m_row==1 else "",
+                "Status": "",
+                "Cred":   "",
+                "CredHi": "",
                 "Days":   m_days,
                 "Time":   m_time,
                 "Location": m_loc,
-                "Cap":  s_cap if m_row==1 else "",
-                "Act":  s_act if m_row==1 else "",
-                "Rem":  s_rem if m_row==1 else "",
-                "Wait": s_wait if m_row==1 else "",
-                "WtCp": s_wcap if m_row==1 else "",
+                "Cap":  "",
+                "Act":  "",
+                "Rem":  "",
+                "Wait": "",
+                "WtCp": "",
                 "Instructor": m_instr,
-                "Dates": m_start+"-"+m_end,
+                "Start": m_start,
+                "End":   m_end,
                 "Weeks": m_wks,
-                "Mode":  s_mode if m_row==1 else "",
+                "Mode": "",
                 "X-list": s_xgrp,
-                "Cost":   s_cost if m_row==1 else "",
-                "Description": s_desc if m_row==1 else ""
+                "Cost": "",
+                "Description": ""
             })
 
             m_row += 1
 
+        s_start = s_topRow.get("startDate","")
+        s_end   = s_topRow.get("endDate","")
+        s_delta = datetime.strptime(s_end, "%m/%d/%Y") - datetime.strptime(s_start, "%m/%d/%Y")
+        s_wks   = int(round(s_delta.days / 7,0))
+        s_topRow["Weeks"] = s_wks
+
+        rows.append(s_topRow)
+        if 1 < len(s_rows):
+            rows.extend(s_rows)
+    
     return rows
 
 # -----------------------------
