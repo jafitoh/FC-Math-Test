@@ -197,6 +197,10 @@ def get_processed_rows(term, mathOnly, fcOnly):
 #        s_insm  = s.get("sectInsmCode","")
         s_desc = s.get("sectLongText","")
         s_instr = s.get("sectInstrName","")
+        s_enrl = s.get("sectEnrlCutOffDate","12/31/2999") #proxy for start date
+        s_drop = s.get("sectDropCutOffDate","01/01/2000") #proxy for end date
+        
+
         
         meetings = s.get("sectMeetings", [])
 #        if not meetings:
@@ -205,10 +209,9 @@ def get_processed_rows(term, mathOnly, fcOnly):
 #            continue
             
         s_mode = modeCodes.get(s_schd, "WTF?")
-        if 0 == len(meetings):
-            s_mode = "NO MEETINGS?!?!"
-        else:
-            if "Hybrid"==s_mode and "ONLINE"==meetings[0].get("bldgCode","WTF???"):
+        if "Hybrid"==s_mode:
+            if len(meetings) > 0:
+                if "ONLINE"==meetings[0].get("bldgCode","WTF???"):
                     s_mode = "Online+Exams"
 
         s_xgrp  = ""
@@ -234,8 +237,8 @@ def get_processed_rows(term, mathOnly, fcOnly):
             "Wait": s_wait,
             "WtCp": s_wcap,
             "Instructor": s_instr,
-            "Start": "12/31/2999", # to be updated from meetings-
-            "End": "01/01/2000", # to be updated from meetings-
+            "Start": s_enrl, # to be updated from meetings-
+            "End": s_drop, # to be updated from meetings-
             "Weeks": "", # to be computed from Start/End-
             "Mode":  s_mode,
             "X-list": s_xgrp,
@@ -309,26 +312,24 @@ def get_processed_rows(term, mathOnly, fcOnly):
             m_row += 1
 
         s_start = s_topRow.get("Start","")
-        s_end   = s_topRow.get("End","")
+        s_end   = s_topRow.get("End","")        
+        s_startx = datetime.strptime( s_start, "%m/%d/%Y")
+        s_endx   = datetime.strptime( s_end, "%m/%d/%Y")
+        s_delta = s_endx - s_startx
+        s_wks   = int(round(s_delta.days / 7,0))
 
-        if ""==s_start or ""==s_end:
-            s_wks = "???"
-            s_status = "???"
+        if 0==len(meetings):
+            s_status = "NO MEETINGS"
+        elif s_endx < today:
+            s_status = "Completed"
+        elif s_startx <= today:
+            s_status = "In Progress"
+        elif s_rem > 0:
+            s_status = "OPEN"
+        elif s_wcap > s_wait:
+            s_status = "Waitlisted"
         else:
-            s_startx = datetime.strptime( s_start, "%m/%d/%Y")
-            s_endx   = datetime.strptime( s_end, "%m/%d/%Y")
-            s_delta = s_endx - s_startx
-            s_wks   = int(round(s_delta.days / 7,0))
-            if s_endx < today:
-                s_status = "Completed"
-            elif s_startx <= today:
-                s_status = "In Progress"
-            elif s_rem > 0:
-                s_status = "OPEN"
-            elif s_wcap > s_wait:
-                s_status = "Waitlisted"
-            else:
-                s_status = "CLOSED"
+            s_status = "CLOSED"
 
         s_topRow["Weeks"] = s_wks
         s_topRow["Status"] = s_status
