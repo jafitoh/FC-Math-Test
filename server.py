@@ -249,13 +249,13 @@ def get_processed_rows(term, mathOnly, fcOnly):
         m_row = 1
         for m in meetings:
             m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay"]])
-            if m_row > 1 and len(m_days) > 0:
-                s_topRow["Days"] += ", "
+            if m_row > 1:
+                s_topRow["Days"] += "/"
             s_topRow["Days"] += m_days
                 
             m_time = f"{m.get('beginTime','')} - {m.get('endTime','')}" if m.get('beginTime') else ""
-            if m_row > 1 and len(m_time) > 0:
-                s_topRow["Time"] += ", "
+            if m_row > 1:
+                s_topRow["Time"] += "/"
             s_topRow["Time"] += m_time
 
             m_bldg = m.get('bldgDesc',"")
@@ -265,8 +265,8 @@ def get_processed_rows(term, mathOnly, fcOnly):
                 m_loc = "ZOOM"
             elif "ONLINE ONLINE" == m_loc:
                 m_loc = "ONLINE"
-            if m_row > 1 and len(m_loc) > 0:
-                s_topRow["Location"] += ", "
+            if m_row > 1:
+                s_topRow["Location"] += "/"
             s_topRow["Location"] += m_loc
 
             m_start  = m.get("startDate","")
