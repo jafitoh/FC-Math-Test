@@ -234,8 +234,8 @@ def get_processed_rows(term, mathOnly, fcOnly):
             "Wait": s_wait,
             "WtCp": s_wcap,
             "Instructor": s_instr,
-            "Start": "01/01/2000", # to be updated from meetings-
-            "End": "12/31/2999", # to be updated from meetings-
+            "Start": "12/31/2999", # to be updated from meetings-
+            "End": "01/01/2000", # to be updated from meetings-
             "Weeks": "", # to be computed from Start/End-
             "Mode":  s_mode,
             "X-list": s_xgrp,
