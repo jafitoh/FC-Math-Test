@@ -3,7 +3,7 @@ import requests
 import pandas as pd
 import io
 from datetime import datetime
-from functools import lru_cache
+# from functools import lru_cache
 import os
 
 app = Flask(__name__)
@@ -116,9 +116,9 @@ HTML_TEMPLATE = """
 """
 
 # -----------------------------
-# CORE DATA FUNCTION (CACHED)
+# CORE DATA FUNCTION (NO LONGER CACHED)
 # -----------------------------
-@lru_cache(maxsize=3)
+# @lru_cache(maxsize=3)
 def get_processed_rows(term, mathOnly, fcOnly):
     today = datetime.today()
 
