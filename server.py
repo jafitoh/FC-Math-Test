@@ -325,11 +325,9 @@ def get_processed_rows(term, mathOnly, fcOnly):
         elif s_startx <= today:
             s_status = "In Progress"
         elif s_rem > 0:
-            s_status = "OPEN"
-        elif s_wcap > s_wait:
-            s_status = "Waitlisted"
+            s_status = "OPEN" if 0 == s_wait else "Waitlisted"
         else:
-            s_status = "CLOSED"
+            s_status = "Waitlisted" if s_wait < s_wcap else "CLOSED"
 
         s_topRow["Weeks"] = s_wks
         s_topRow["Status"] = s_status
