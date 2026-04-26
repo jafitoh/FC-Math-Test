@@ -228,9 +228,10 @@ def get_processed_rows(term, mathOnly, fcOnly):
             "Status":   "", # to be filled in from meetings-
             "Cred":   s_credlo,
             "CredHi": s_credhi,
-            "Days":     "", # to be filled in from meetings-
-            "Time":     "", # to be filled in from meetings-
-            "Location": "", # to be filled in from meetings-
+            "Days":        "", # to be filled in from meetings-
+            "Days Campus": "", # to be filled in from meetings-
+            "Time":        "", # to be filled in from meetings-
+            "Location":    "", # to be filled in from meetings-
             "Cap":  s_cap,
             "Act":  s_act,
             "Rem":  s_rem,
@@ -248,11 +249,7 @@ def get_processed_rows(term, mathOnly, fcOnly):
 
         m_row = 1
         for m in meetings:
-            m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay","sunDay"]])
-            if m_row > 1:
-                s_topRow["Days"] += "/"
-            s_topRow["Days"] += m_days
-                
+
             m_time = f"{m.get('beginTime','')} - {m.get('endTime','')}" if m.get('beginTime') else ""
             if m_row > 1:
                 s_topRow["Time"] += "/"
@@ -264,11 +261,20 @@ def get_processed_rows(term, mathOnly, fcOnly):
             if "ZOOM ZOOM" == m_loc:
                 m_loc = "ZOOM"
             elif "ONLINE ONLINE" == m_loc:
-                m_loc = "ONLINE"
+                m_loc = "ONLINE"            
             if m_row > 1:
                 s_topRow["Location"] += "/"
             s_topRow["Location"] += m_loc
 
+            m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay","sunDay"]])
+            m_schd = m.get('schdDesc',"")            
+            m_daysC = "" if m_schd in [ "Hybrid", "Online", "Synch Online" ] or m_loc in [ "ZOOM", "ONLINE" ] else m_days
+            if m_row > 1:
+                s_topRow["Days"] += "/"
+                s_topRow["Days Campus"] += "/"
+            s_topRow["Days"] += m_days
+            s_topRow["Days Campus"] += m_daysC
+                
             m_start  = m.get("startDate","")
             m_end    = m.get("endDate","")
             m_startx = datetime.strptime(m_start, "%m/%d/%Y")
@@ -291,7 +297,8 @@ def get_processed_rows(term, mathOnly, fcOnly):
                 "Status": "",
                 "Cred":   "",
                 "CredHi": "",
-                "Days":   m_days,
+                "Days":          m_days,
+                "Days Campus":   m_daysC,
                 "Time":   m_time,
                 "Location": m_loc,
                 "Cap":  "",
