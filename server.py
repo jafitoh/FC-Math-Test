@@ -266,15 +266,6 @@ def get_processed_rows(term, mathOnly, fcOnly):
                 s_topRow["Location"] += "/"
             s_topRow["Location"] += m_loc
 
-            m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay","sunDay"]])
-            m_schd = m.get('schdDesc',"")            
-            m_daysC = "" if m_schd in [ "Hybrid", "Online", "Synch Online" ] or m_loc in [ "ZOOM", "ONLINE" ] else m_days
-            if m_row > 1:
-                s_topRow["Days"] += "/"
-                s_topRow["Days Campus"] += "/"
-            s_topRow["Days"] += m_days
-            s_topRow["Days Campus"] += m_daysC
-                
             m_start  = m.get("startDate","")
             m_end    = m.get("endDate","")
             m_startx = datetime.strptime(m_start, "%m/%d/%Y")
@@ -285,8 +276,17 @@ def get_processed_rows(term, mathOnly, fcOnly):
             if m_startx < datetime.strptime(s_topRow["Start"], "%m/%d/%Y"): 
                 s_topRow["Start"] = m_start
             if m_endx > datetime.strptime(s_topRow["End"], "%m/%d/%Y"): 
-                s_topRow["End"] = m_end
-                                                        
+                s_topRow["End"] = m_end            
+            
+            m_days = ''.join([m.get(day, '') for day in ["monDay","tueDay","wedDay","thuDay","friDay","satDay","sunDay"]])
+            m_schd = m.get('schdDesc',"")            
+            m_daysC = "" if m_wks < 1 or m_schd in [ "Hybrid", "Online", "Synch Online" ] or m_loc in [ "ZOOM", "ONLINE" ] else m_days
+            if m_row > 1:
+                s_topRow["Days"] += "/"
+                s_topRow["Days Campus"] += "/"
+            s_topRow["Days"] += m_days
+            s_topRow["Days Campus"] += m_daysC
+                                                                        
             m_instr = m.get("meetInstrName", s_instr)
 
             s_rows.append({
