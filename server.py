@@ -325,7 +325,9 @@ def get_processed_rows(term, mathOnly, fcOnly):
         s_delta = s_endx - s_startx
         s_wks   = int(round(s_delta.days / 7,0))
 
-        if 0==len(meetings):
+        if 0==s_cap:
+            s_status = "ZERO CAP"
+        elif 0==len(meetings):
             s_status = "NO MEETINGS"
         elif s_endx < today:
             s_status = "Completed"
