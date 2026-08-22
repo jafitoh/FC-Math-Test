@@ -61,7 +61,7 @@ HTML_TEMPLATE = """
 </head>
 
 <body>
-    <h2>Actually readable class schedule that NOCCCD bastards removed ({{ count }} rows)</h2>
+    <h2>An actually readable class schedule like what we used to have until 2025 when it was removed by the ever usercentric braintrust of visionaries that run "tech" at NOCCCD ({{ count }} rows)</h2>
 
     <div class="controls">
         <form method="get" action="/sections" style="display:inline;">
