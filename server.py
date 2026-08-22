@@ -62,7 +62,7 @@ HTML_TEMPLATE = """
 
 <body>
     <h2>An actually readable class schedule... ({{ count }} rows)</h2>
-    <h4>...like what we used to have until 2025 when it was removed by the ever usercentric braintrust of visionaries that run "tech" at NOCCCD.</h4>
+    <h4>...like we had for decades until 2025 when it was removed by the ever usercentric braintrust of visionaries that run "tech" at NOCCCD.</h4>
 
     <div class="controls">
         <form method="get" action="/sections" style="display:inline;">
